@@ -1,0 +1,27 @@
+from scrapy import Item, Field
+
+
+class CharacterItem(Item):
+    character_id = Field()
+    name = Field()
+    aliases = Field()
+    universe = Field()
+    franchise = Field()
+    character_type = Field()
+    species = Field()
+    gender = Field()
+    birth_date = Field()
+    zodiac_sign = Field()
+    personality_traits = Field()
+    description = Field()
+    image_url = Field()
+    image_local_path = Field()
+    source_name = Field()
+    source_url = Field()
+    image_license = Field()
+    attribution = Field()
+    last_updated = Field()
+    _commons_file_title = Field()
+    _wikidata_qid = Field()
+    _download_url = Field()
+    _birth_date_reference = Field()

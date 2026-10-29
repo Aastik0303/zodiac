@@ -1,0 +1,225 @@
+Act as a Senior Python Scraping Engineer. Build a scalable, modular, and production-ready web scraping pipeline using Scrapy for my Zodiac Character Matcher website.
+
+## 1. Project Objective
+
+I am building a website that matches users with fictional characters based on zodiac signs, personality traits, and selected fictional universes.
+
+I need a reusable scraper that collects character metadata from multiple permitted public sources and exports clean, structured data for my website.
+
+Target universes may include:
+- Marvel
+- DC Comics
+- Harry Potter
+- Disney
+- Anime
+- Hollywood movies and TV series
+
+Do not assume every source contains every field. Preserve missing values as null instead of inventing facts.
+
+## 2. Technology Stack
+
+Use:
+- Python 3.11+
+- Scrapy
+- Pydantic for data validation
+- JSON Lines and JSON export
+- pytest for unit testing
+- Pillow for optional image validation and processing
+
+Keep the architecture modular so additional data sources can be added without rewriting the scraper.
+
+## 3. Required Character Fields
+
+Each character record should contain:
+
+{
+  "character_id": "marvel_iron_man",
+  "name": "Iron Man",
+  "aliases": [],
+  "universe": "Marvel",
+  "franchise": "Marvel Cinematic Universe",
+  "character_type": "superhero",
+  "species": null,
+  "gender": null,
+  "birth_date": null,
+  "zodiac_sign": null,
+  "personality_traits": [],
+  "description": null,
+  "image_url": null,
+  "image_local_path": null,
+  "source_name": null,
+  "source_url": null,
+  "image_license": null,
+  "attribution": null,
+  "last_updated": null
+}
+
+This is an example schema, not verified character data.
+
+## 4. Scraper Requirements
+
+Implement the following:
+
+### A. Modular spiders
+- Create a separate spider or adapter for each supported source.
+- Begin with one source that explicitly permits the intended collection.
+- Avoid hard-coding website-specific selectors throughout the project.
+- Handle pagination where permitted.
+- Extract character names, descriptions, birth dates, image URLs, and source URLs when available.
+- Respect each website's terms, robots.txt guidance, and applicable access restrictions.
+- Do not bypass authentication, CAPTCHAs, paywalls, or anti-bot controls.
+
+### B. Data validation
+- Validate all records using Pydantic.
+- Normalize whitespace and text encoding.
+- Normalize universe names consistently.
+- Reject malformed URLs.
+- Preserve unknown values as null.
+- Log invalid records instead of silently discarding them.
+
+### C. Duplicate detection
+- Generate stable character IDs.
+- Detect duplicate records using source IDs, canonical URLs, aliases, and normalized names.
+- Do not merge different versions of the same character automatically.
+- Keep a distinction between comic, animated, and movie versions when the source supports it.
+
+### D. Image handling
+- Store image URLs separately from character metadata.
+- Download images only when the source permits it and the intended use is licensed.
+- Verify image content types and file sizes.
+- Support configurable image dimensions and formats.
+- Generate thumbnails only when image processing is enabled.
+- Never assume that publicly accessible images are free for commercial use.
+- Record licensing and attribution information when available.
+
+### E. Zodiac assignment
+- Calculate zodiac signs from verified birth dates only when the date represents the character's established birth date.
+- Do not confuse fictional release dates or actor birth dates with character birth dates.
+- If no reliable birth date exists, set zodiac_sign to null.
+- Allow a separate configurable personality-based fictional matching label, clearly distinguished from an official or birth-date-derived zodiac sign.
+
+## 5. Scalability and Performance
+
+Implement:
+- Configurable concurrency and download delays.
+- Request timeouts and bounded retries.
+- Per-domain rate limits.
+- Incremental scraping.
+- HTTP caching for development and permitted sources.
+- Structured logging.
+- Checkpoint-friendly exports.
+- Separate metadata scraping from image downloading.
+- Configurable limits for records and downloaded image sizes.
+
+Do not implement distributed infrastructure unless there is a demonstrated need.
+
+## 6. Project Structure
+
+Create this structure:
+
+zodiac-character-scraper/
+├── scrapy.cfg
+├── requirements.txt
+├── README.md
+├── .env.example
+├── config/
+│   └── settings.py
+├── zodiac_scraper/
+│   ├── __init__.py
+│   ├── items.py
+│   ├── schemas.py
+│   ├── pipelines.py
+│   ├── settings.py
+│   ├── middlewares.py
+│   ├── utils/
+│   │   ├── ids.py
+│   │   ├── normalization.py
+│   │   └── zodiac.py
+│   └── spiders/
+│       ├── __init__.py
+│       └── permitted_source.py
+├── scripts/
+│   ├── export_json.py
+│   └── download_images.py
+├── data/
+│   ├── raw/
+│   ├── processed/
+│   └── images/
+└── tests/
+    ├── test_schemas.py
+    ├── test_normalization.py
+    └── test_zodiac.py
+
+Adapt this structure if Scrapy conventions require a different arrangement.
+
+## 7. Output Formats
+
+Support:
+- JSON Lines for incremental scraping.
+- JSON for frontend consumption.
+- CSV for manual inspection.
+
+Example output:
+
+{
+  "characters": [
+    {
+      "character_id": "marvel_iron_man",
+      "name": "Iron Man",
+      "universe": "Marvel",
+      "zodiac_sign": null,
+      "personality_traits": [],
+      "image_url": null,
+      "source_url": null
+    }
+  ]
+}
+
+Never insert fabricated scraped records into production output.
+
+## 8. Testing
+
+Write tests for:
+- Schema validation.
+- URL validation.
+- Duplicate detection.
+- Missing fields.
+- Zodiac date boundaries.
+- Character version handling.
+- Image validation.
+- Export correctness.
+
+Use local HTML fixtures or mocked responses for automated tests. Tests should not depend on a live website.
+
+## 9. Documentation
+
+Create a README containing:
+- Python environment setup.
+- Dependency installation.
+- How to create and run a spider.
+- How to configure an allowed source.
+- How to export JSON and CSV.
+- How to run tests.
+- How to enable optional image downloads.
+- How to add another universe or source.
+- Rate-limit and licensing considerations.
+
+Provide working commands for Windows PowerShell.
+
+## 10. Implementation Instructions
+
+Work incrementally:
+1. Inspect the existing repository before making changes.
+2. Create the minimum working Scrapy project.
+3. Implement the data schema and validation.
+4. Implement one permitted source adapter.
+5. Add deduplication and exports.
+6. Add optional image downloading.
+7. Write tests and documentation.
+8. Run the tests and fix failures.
+9. Show sample output generated from fixtures.
+10. Summarize what is implemented and what still needs source-specific configuration.
+
+Do not claim the scraper has collected real data unless a live collection has actually succeeded.
+
+The final result should be a maintainable Python project that can gradually expand to additional fictional universes without requiring a rewrite.
